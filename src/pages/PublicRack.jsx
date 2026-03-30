@@ -96,9 +96,9 @@ export default function PublicRack() {
       <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
 
       {/* Header */}
-      <header className="bg-white border-b border-gray-100 px-4 py-4 sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto flex items-center gap-3">
-          <div className="w-9 h-9 bg-brand rounded-xl flex items-center justify-center flex-shrink-0">
+      <header className="bg-white border-b border-gray-100 px-4 py-4 sticky top-0 z-10 backdrop-blur-sm bg-white/90">
+        <div className="max-w-2xl mx-auto flex items-center gap-3 animate-slide-left">
+          <div className="w-9 h-9 bg-brand rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
             <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
@@ -107,7 +107,7 @@ export default function PublicRack() {
             <h1 className="font-bold text-gray-900 text-base leading-tight truncate">{rack?.nombre}</h1>
             <p className="text-xs text-gray-400">{tops.length} TOPs registrados</p>
           </div>
-          <span className="ml-auto flex items-center gap-1 text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-medium flex-shrink-0">
+          <span className="ml-auto flex items-center gap-1 text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-medium flex-shrink-0 animate-pop-in">
             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
             En vivo
           </span>
@@ -116,11 +116,11 @@ export default function PublicRack() {
 
       <main className="max-w-2xl mx-auto px-4 py-6">
         {rack?.descripcion && (
-          <p className="text-sm text-gray-500 mb-5 bg-white rounded-xl border border-gray-100 px-4 py-3">{rack.descripcion}</p>
+          <p className="text-sm text-gray-500 mb-5 bg-white rounded-xl border border-gray-100 px-4 py-3 animate-slide-up delay-50">{rack.descripcion}</p>
         )}
 
         {/* Search filter */}
-        <div className="relative mb-4">
+        <div className="relative mb-4 animate-slide-up delay-100">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
@@ -129,14 +129,14 @@ export default function PublicRack() {
 
         {/* Authenticated add form */}
         {user && (
-          <div className="mb-4">
+          <div className="mb-4 animate-slide-up delay-150">
             {!showAddForm ? (
               <button onClick={() => setShowAddForm(true)} className="btn-primary w-full flex items-center justify-center gap-2 py-2.5">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
                 Agregar TOP a este rack
               </button>
             ) : (
-              <div className="bg-white rounded-xl border border-brand p-4">
+              <div className="bg-white rounded-xl border border-brand p-4 animate-slide-up">
                 <h3 className="text-sm font-semibold text-gray-900 mb-3">Agregar TOP</h3>
                 <form onSubmit={handleAdd} className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
@@ -165,13 +165,16 @@ export default function PublicRack() {
 
         {/* TOPs list */}
         {filtered.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-10 text-center text-gray-400 text-sm">
+          <div className="bg-white rounded-xl border border-gray-100 p-10 text-center text-gray-400 text-sm animate-fade-in">
             {tops.length === 0 ? 'No hay TOPs registrados en este rack.' : 'Sin resultados.'}
           </div>
         ) : (
           <div className="space-y-2">
-            {filtered.map(top => (
-              <div key={top.id} className="bg-white rounded-xl border border-gray-100 px-4 py-3.5 flex items-start gap-3">
+            {filtered.map((top, i) => (
+              <div key={top.id}
+                className="bg-white rounded-xl border border-gray-100 px-4 py-3.5 flex items-start gap-3 hover:border-gray-200 hover:shadow-sm transition-all duration-200 animate-slide-up"
+                style={{ animationDelay: `${200 + i * 40}ms` }}
+              >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -187,7 +190,7 @@ export default function PublicRack() {
           </div>
         )}
 
-        <p className="text-center text-xs text-gray-300 mt-8">TOP Inventory · {user ? `Conectado como ${user.email}` : 'Solo lectura'}</p>
+        <p className="text-center text-xs text-gray-300 mt-8 animate-fade-in delay-400">TOP Inventory · {user ? `Conectado como ${user.email}` : 'Solo lectura'}</p>
       </main>
     </div>
   )
