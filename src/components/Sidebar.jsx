@@ -8,7 +8,8 @@ import { useLanguage } from '../context/LanguageContext'
 export default function Sidebar({ open, onClose }) {
   const user = useAuth()
   const { dark, toggleDark } = useTheme()
-  const { lang, toggleLang, t } = useLanguage()
+  const { lang, toggleLang, t, flags, labels, langs } = useLanguage()
+  const nextLang = langs[(langs.indexOf(lang) + 1) % langs.length]
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -102,8 +103,8 @@ export default function Sidebar({ open, onClose }) {
           onClick={toggleLang}
           className="flex items-center gap-3 w-full px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors"
         >
-          <span className="text-base leading-none">{lang === 'es' ? '🇺🇸' : '🇲🇽'}</span>
-          {lang === 'es' ? 'English' : 'Español'}
+          <span className="text-base leading-none">{flags[nextLang]}</span>
+          {labels[nextLang]}
         </button>
 
         {/* Dark mode toggle */}

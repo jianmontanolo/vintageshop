@@ -4,7 +4,8 @@ import { auth } from '../firebase'
 import { useLanguage } from '../context/LanguageContext'
 
 export default function Login() {
-  const { lang, toggleLang, t } = useLanguage()
+  const { lang, toggleLang, t, flags, labels, langs } = useLanguage()
+  const nextLang = langs[(langs.indexOf(lang) + 1) % langs.length]
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -37,8 +38,8 @@ export default function Login() {
         onClick={toggleLang}
         className="fixed top-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-xs font-semibold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm animate-pop-in"
       >
-        <span className="text-base leading-none">{lang === 'es' ? '🇲🇽' : '🇺🇸'}</span>
-        {lang === 'es' ? 'ES' : 'EN'}
+        <span className="text-base leading-none">{flags[nextLang]}</span>
+        {labels[nextLang]}
       </button>
 
       <div className="w-full max-w-sm animate-slide-up">
