@@ -172,9 +172,6 @@ export default function PublicRack() {
           <div className="space-y-2">
             {filtered.map(top => (
               <div key={top.id} className="bg-white rounded-xl border border-gray-100 px-4 py-3.5 flex items-start gap-3">
-                {top.fotoUrl && (
-                  <img src={top.fotoUrl} alt={top.estilo} className="w-12 h-12 rounded-lg object-cover border border-gray-100 flex-shrink-0" />
-                )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div>

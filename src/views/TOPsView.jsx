@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import {
   collection, onSnapshot, addDoc, deleteDoc, updateDoc, doc, query, where, serverTimestamp
 } from 'firebase/firestore'
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { db, storage } from '../firebase'
+import { db } from '../firebase'
 import { useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext'
@@ -43,19 +42,6 @@ function Modal({ title, onClose, children }) {
   )
 }
 
-// ─── Photo upload helper ──────────────────────────────────────
-async function uploadPhoto(file, rackId) {
-  const path = `tops/${rackId}/${Date.now()}_${file.name}`
-  const storageRef = ref(storage, path)
-  return new Promise((resolve, reject) => {
-    const task = uploadBytesResumable(storageRef, file)
-    task.on('state_changed', null,
-      reject,
-      () => getDownloadURL(task.snapshot.ref).then(resolve).catch(reject)
-    )
-  })
-}
-
 // ─── Main component ───────────────────────────────────────────
 export default function TOPsView() {
   const user = useAuth()
@@ -73,7 +59,6 @@ export default function TOPsView() {
   const [estilo, setEstilo] = useState('')
   const [color, setColor] = useState('')
   const [descripcion, setDescripcion] = useState('')
-  const [photoFile, setPhotoFile] = useState(null)
   const [saving, setSaving] = useState(false)
 
   // Edit modal
@@ -82,7 +67,6 @@ export default function TOPsView() {
   const [editColor, setEditColor] = useState('')
   const [editDescripcion, setEditDescripcion] = useState('')
   const [editRackId, setEditRackId] = useState('')
-  const [editPhotoFile, setEditPhotoFile] = useState(null)
   const [editSaving, setEditSaving] = useState(false)
 
   // Delete confirm
@@ -123,20 +107,17 @@ export default function TOPsView() {
     setSaving(true)
     const tid = toast.loading('Guardando TOP...')
     try {
-      let fotoUrl = null
-      if (photoFile) fotoUrl = await uploadPhoto(photoFile, selectedRack)
       const docRef = await addDoc(collection(db, 'tops'), {
         rackId: selectedRack,
         estilo: estilo.trim().toUpperCase(),
         color: color.trim(),
         descripcion: descripcion.trim(),
-        fotoUrl,
         creadoPor: user.email,
         creadoEn: serverTimestamp(),
       })
       await logHistory({ topId: docRef.id, accion: 'crear', despues: { estilo: estilo.trim().toUpperCase(), color: color.trim(), rackId: selectedRack }, usuario: user.email })
       toast.success('TOP agregado', { id: tid })
-      setEstilo(''); setColor(''); setDescripcion(''); setPhotoFile(null)
+      setEstilo(''); setColor(''); setDescripcion('')
       setShowForm(false)
     } catch (err) {
       toast.error('Error: ' + err.message, { id: tid })
@@ -152,7 +133,6 @@ export default function TOPsView() {
     setEditColor(top.color)
     setEditDescripcion(top.descripcion ?? '')
     setEditRackId(top.rackId)
-    setEditPhotoFile(null)
   }
 
   const handleEdit = async (e) => {
@@ -161,16 +141,12 @@ export default function TOPsView() {
     setEditSaving(true)
     const tid = toast.loading('Actualizando...')
     try {
-      let fotoUrl = editingTop.fotoUrl ?? null
-      if (editPhotoFile) fotoUrl = await uploadPhoto(editPhotoFile, editRackId)
-
       const moved = editRackId !== editingTop.rackId
       await updateDoc(doc(db, 'tops', editingTop.id), {
         estilo: editEstilo.trim().toUpperCase(),
         color: editColor.trim(),
         descripcion: editDescripcion.trim(),
         rackId: editRackId,
-        fotoUrl,
         modificadoPor: user.email,
         modificadoEn: serverTimestamp(),
       })
@@ -361,13 +337,6 @@ export default function TOPsView() {
               <label className="label">Descripción <span className="text-gray-400 font-normal">(opcional)</span></label>
               <textarea className="input resize-none" rows={2} placeholder="Notas..." value={descripcion} onChange={e => setDescripcion(e.target.value)} />
             </div>
-            <div className="mb-4">
-              <label className="label">Foto <span className="text-gray-400 font-normal">(opcional)</span></label>
-              <input type="file" accept="image/*" capture="environment"
-                className="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-brand-50 file:text-brand hover:file:bg-brand-100 cursor-pointer"
-                onChange={e => setPhotoFile(e.target.files[0] ?? null)} />
-              {photoFile && <p className="text-xs text-gray-400 mt-1">{photoFile.name}</p>}
-            </div>
             <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">Registrado por: <strong className="text-gray-600 dark:text-gray-300">{user?.email}</strong></p>
             <div className="flex gap-3">
               <button type="button" onClick={() => setShowForm(false)} className="btn-secondary flex-1">Cancelar</button>
@@ -400,7 +369,6 @@ export default function TOPsView() {
               <table className="w-full min-w-[650px]">
                 <thead>
                   <tr>
-                    <th className="table-th">Foto</th>
                     <th className="table-th">Estilo</th>
                     <th className="table-th">Color</th>
                     <th className="table-th">Descripción</th>
@@ -412,14 +380,6 @@ export default function TOPsView() {
                 <tbody>
                   {filtered.map(top => (
                     <tr key={top.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                      <td className="table-td">
-                        {top.fotoUrl
-                          ? <img src={top.fotoUrl} alt={top.estilo} className="w-9 h-9 rounded-lg object-cover border border-gray-100 dark:border-gray-600" />
-                          : <div className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                              <svg className="w-4 h-4 text-gray-300 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            </div>
-                        }
-                      </td>
                       <td className="table-td font-medium text-gray-900 dark:text-white">{top.estilo}</td>
                       <td className="table-td">
                         <span className="flex items-center"><ColorDot color={top.color} />{top.color}</span>
@@ -470,15 +430,6 @@ export default function TOPsView() {
               <select className="input" value={editRackId} onChange={e => setEditRackId(e.target.value)}>
                 {racks.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
               </select>
-            </div>
-            <div>
-              <label className="label">Foto <span className="text-gray-400 font-normal">(reemplazar)</span></label>
-              {editingTop.fotoUrl && !editPhotoFile && (
-                <img src={editingTop.fotoUrl} alt="foto actual" className="w-16 h-16 rounded-lg object-cover mb-2 border border-gray-100 dark:border-gray-600" />
-              )}
-              <input type="file" accept="image/*" capture="environment"
-                className="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-brand-50 file:text-brand hover:file:bg-brand-100 cursor-pointer"
-                onChange={e => setEditPhotoFile(e.target.files[0] ?? null)} />
             </div>
             {editRackId !== editingTop.rackId && (
               <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg">
