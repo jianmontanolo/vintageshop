@@ -3,11 +3,13 @@ import { useParams } from 'react-router-dom'
 import { doc, getDoc, collection, query, where, onSnapshot, orderBy, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import toast, { Toaster } from 'react-hot-toast'
 
 export default function PublicRack() {
   const { rackId } = useParams()
   const user = useAuth()
+  const { t } = useLanguage()
 
   const [rack, setRack] = useState(null)
   const [tops, setTops] = useState([])
@@ -53,7 +55,7 @@ export default function PublicRack() {
         creadoPor: user.email,
         creadoEn: serverTimestamp(),
       })
-      toast.success('TOP agregado')
+      toast.success(t('publicRack', 'topAdded'))
       setEstilo(''); setColor(''); setDescripcion(''); setShowAddForm(false)
     } catch (err) {
       toast.error('Error: ' + err.message)
@@ -85,8 +87,8 @@ export default function PublicRack() {
         <svg className="w-12 h-12 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <h1 className="text-lg font-semibold text-gray-700">Rack no encontrado</h1>
-        <p className="text-sm text-gray-400 mt-1">El rack solicitado no existe.</p>
+        <h1 className="text-lg font-semibold text-gray-700">{t('publicRack', 'notFoundTitle')}</h1>
+        <p className="text-sm text-gray-400 mt-1">{t('publicRack', 'notFoundMsg')}</p>
       </div>
     )
   }
@@ -105,11 +107,11 @@ export default function PublicRack() {
           </div>
           <div className="min-w-0">
             <h1 className="font-bold text-gray-900 text-base leading-tight truncate">{rack?.nombre}</h1>
-            <p className="text-xs text-gray-400">{tops.length} TOPs registrados</p>
+            <p className="text-xs text-gray-400">{tops.length} {t('publicRack', 'registered')}</p>
           </div>
           <span className="ml-auto flex items-center gap-1 text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-medium flex-shrink-0 animate-pop-in">
             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-            En vivo
+            {t('publicRack', 'live')}
           </span>
         </div>
       </header>
@@ -124,7 +126,7 @@ export default function PublicRack() {
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <input className="input pl-9" placeholder="Filtrar por Estilo..." value={filterEstilo} onChange={e => setFilterEstilo(e.target.value)} />
+          <input className="input pl-9" placeholder={t('publicRack', 'filterPlaceholder')} value={filterEstilo} onChange={e => setFilterEstilo(e.target.value)} />
         </div>
 
         {/* Authenticated add form */}
@@ -133,29 +135,29 @@ export default function PublicRack() {
             {!showAddForm ? (
               <button onClick={() => setShowAddForm(true)} className="btn-primary w-full flex items-center justify-center gap-2 py-2.5">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-                Agregar TOP a este rack
+                {t('publicRack', 'addTop')}
               </button>
             ) : (
               <div className="bg-white rounded-xl border border-brand p-4 animate-slide-up">
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Agregar TOP</h3>
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('publicRack', 'addTopTitle')}</h3>
                 <form onSubmit={handleAdd} className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="label">Estilo <span className="text-red-400">*</span></label>
+                      <label className="label">{t('publicRack', 'estilo')} <span className="text-red-400">*</span></label>
                       <input className="input" placeholder="BL-2024" value={estilo} onChange={e => setEstilo(e.target.value)} required autoFocus />
                     </div>
                     <div>
-                      <label className="label">Color <span className="text-red-400">*</span></label>
+                      <label className="label">{t('publicRack', 'color')} <span className="text-red-400">*</span></label>
                       <input className="input" placeholder="Rojo" value={color} onChange={e => setColor(e.target.value)} required />
                     </div>
                   </div>
                   <div>
-                    <label className="label">Descripción <span className="text-gray-400 font-normal">(opcional)</span></label>
+                    <label className="label">{t('publicRack', 'description')} <span className="text-gray-400 font-normal">{t('publicRack', 'optional')}</span></label>
                     <input className="input" placeholder="Notas..." value={descripcion} onChange={e => setDescripcion(e.target.value)} />
                   </div>
                   <div className="flex gap-2">
-                    <button type="button" onClick={() => setShowAddForm(false)} className="btn-secondary flex-1">Cancelar</button>
-                    <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? 'Guardando...' : 'Guardar'}</button>
+                    <button type="button" onClick={() => setShowAddForm(false)} className="btn-secondary flex-1">{t('publicRack', 'cancel')}</button>
+                    <button type="submit" disabled={saving} className="btn-primary flex-1">{saving ? t('publicRack', 'saving') : t('publicRack', 'save')}</button>
                   </div>
                 </form>
               </div>
@@ -166,7 +168,7 @@ export default function PublicRack() {
         {/* TOPs list */}
         {filtered.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-100 p-10 text-center text-gray-400 text-sm animate-fade-in">
-            {tops.length === 0 ? 'No hay TOPs registrados en este rack.' : 'Sin resultados.'}
+            {tops.length === 0 ? t('publicRack', 'noTops') : t('publicRack', 'noResults')}
           </div>
         ) : (
           <div className="space-y-2">
@@ -190,7 +192,7 @@ export default function PublicRack() {
           </div>
         )}
 
-        <p className="text-center text-xs text-gray-300 mt-8 animate-fade-in delay-400">TOP Inventory · {user ? `Conectado como ${user.email}` : 'Solo lectura'}</p>
+        <p className="text-center text-xs text-gray-300 mt-8 animate-fade-in delay-400">TOP Inventory · {user ? `${t('publicRack', 'connected')} ${user.email}` : t('publicRack', 'readOnly')}</p>
       </main>
     </div>
   )

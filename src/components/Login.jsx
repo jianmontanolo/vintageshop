@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../firebase'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function Login() {
+  const { lang, toggleLang, t } = useLanguage()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -16,13 +18,13 @@ export default function Login() {
       await signInWithEmailAndPassword(auth, email, password)
     } catch (err) {
       const messages = {
-        'auth/user-not-found': 'Usuario no encontrado.',
-        'auth/wrong-password': 'Contraseña incorrecta.',
-        'auth/invalid-email': 'Correo electrónico inválido.',
-        'auth/too-many-requests': 'Demasiados intentos. Intenta más tarde.',
-        'auth/invalid-credential': 'Credenciales inválidas. Verifica tu correo y contraseña.',
+        'auth/user-not-found': t('login', 'errNotFound'),
+        'auth/wrong-password': t('login', 'errWrongPass'),
+        'auth/invalid-email': t('login', 'errInvalidEmail'),
+        'auth/too-many-requests': t('login', 'errTooMany'),
+        'auth/invalid-credential': t('login', 'errInvalidCred'),
       }
-      setError(messages[err.code] || 'Error al iniciar sesión. Inténtalo de nuevo.')
+      setError(messages[err.code] || t('login', 'errGeneral'))
     } finally {
       setLoading(false)
     }
@@ -30,28 +32,37 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
+      {/* Language toggle */}
+      <button
+        onClick={toggleLang}
+        className="fixed top-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-xs font-semibold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm animate-pop-in"
+      >
+        <span className="text-base leading-none">{lang === 'es' ? '🇲🇽' : '🇺🇸'}</span>
+        {lang === 'es' ? 'ES' : 'EN'}
+      </button>
+
+      <div className="w-full max-w-sm animate-slide-up">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-brand rounded-2xl mb-4">
+        <div className="text-center mb-8 animate-fade-in">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-brand rounded-2xl mb-4 shadow-lg">
             <svg className="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">TOP Inventory</h1>
-          <p className="text-sm text-gray-500 mt-1">Gestión de muestras de ropa</p>
+          <p className="text-sm text-gray-500 mt-1">{t('login', 'subtitle')}</p>
         </div>
 
         {/* Card */}
-        <div className="card p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-6">Iniciar sesión</h2>
+        <div className="card p-6 animate-slide-up delay-100">
+          <h2 className="text-lg font-semibold text-gray-800 mb-6">{t('login', 'signIn')}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="label">Correo electrónico</label>
+              <label className="label">{t('login', 'email')}</label>
               <input
                 type="email"
                 className="input"
-                placeholder="correo@empresa.com"
+                placeholder={t('login', 'emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -59,7 +70,7 @@ export default function Login() {
               />
             </div>
             <div>
-              <label className="label">Contraseña</label>
+              <label className="label">{t('login', 'password')}</label>
               <input
                 type="password"
                 className="input"
@@ -71,7 +82,7 @@ export default function Login() {
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-100 text-red-600 text-sm rounded-lg px-3 py-2">
+              <div className="bg-red-50 border border-red-100 text-red-600 text-sm rounded-lg px-3 py-2 animate-slide-up">
                 {error}
               </div>
             )}
@@ -84,15 +95,15 @@ export default function Login() {
               {loading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Ingresando...
+                  {t('login', 'signingIn')}
                 </>
-              ) : 'Iniciar sesión'}
+              ) : t('login', 'signIn')}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6">
-          Acceso solo para personal autorizado
+        <p className="text-center text-xs text-gray-400 mt-6 animate-fade-in delay-200">
+          {t('login', 'onlyStaff')}
         </p>
       </div>
     </div>

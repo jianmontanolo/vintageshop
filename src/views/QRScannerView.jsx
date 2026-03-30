@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Html5QrcodeScanner } from 'html5-qrcode'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function QRScannerView() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const scannerRef = useRef(null)
-  const [status, setStatus] = useState('idle') // idle | scanning | found | error
+  const [status, setStatus] = useState('idle')
   const [result, setResult] = useState('')
 
   useEffect(() => {
@@ -20,15 +22,12 @@ export default function QRScannerView() {
         setResult(decodedText)
         setStatus('found')
         scanner.clear().catch(() => {})
-        // Try to extract rackId from URL pattern
         const match = decodedText.match(/\/rack\/([^/?#\s]+)/)
         if (match) {
           setTimeout(() => navigate(`/rack/${match[1]}`), 800)
         }
       },
-      () => {
-        // frame errors are normal, ignore
-      }
+      () => {}
     )
     scannerRef.current = scanner
     setStatus('scanning')
@@ -40,11 +39,9 @@ export default function QRScannerView() {
 
   return (
     <div className="p-6 max-w-lg mx-auto">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">Escanear QR</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-          Apunta la cámara al código QR de un rack para abrirlo
-        </p>
+      <div className="mb-6 animate-fade-in">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('scanner', 'title')}</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{t('scanner', 'subtitle')}</p>
       </div>
 
       {status === 'found' ? (
@@ -54,12 +51,12 @@ export default function QRScannerView() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <p className="font-semibold text-gray-900 dark:text-white mb-1">¡QR detectado!</p>
+          <p className="font-semibold text-gray-900 dark:text-white mb-1">{t('scanner', 'detected')}</p>
           <p className="text-xs text-gray-400 dark:text-gray-500 break-all">{result}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">Abriendo rack...</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">{t('scanner', 'opening')}</p>
         </div>
       ) : (
-        <div className="card overflow-hidden">
+        <div className="card overflow-hidden animate-slide-up delay-50">
           <div
             id="qr-reader"
             className="[&_video]:rounded-none [&_select]:input [&_select]:mb-2 [&_button]:btn-primary [&_button]:w-full [&_button]:mt-2"
@@ -67,8 +64,8 @@ export default function QRScannerView() {
         </div>
       )}
 
-      <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-4">
-        Solo funciona con QRs generados por esta app
+      <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-4 animate-fade-in delay-200">
+        {t('scanner', 'onlyApp')}
       </p>
     </div>
   )
