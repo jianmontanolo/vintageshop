@@ -11,7 +11,7 @@ export default function SearchView() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsubRacks = onSnapshot(collection(db, 'racks'), (snap) => {
+    const unsubRacks = onSnapshot(collection(db, 'bastidores'), (snap) => {
       const map = {}
       snap.docs.forEach(d => { map[d.id] = d.data().nombre })
       setRacks(map)

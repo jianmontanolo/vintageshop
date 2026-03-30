@@ -14,7 +14,7 @@ export default function PrintQRView() {
   const qrUrl = selectedRack ? `${window.location.origin}/rack/${selectedRack}` : ''
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, 'racks'), (snap) => {
+    const unsub = onSnapshot(collection(db, 'bastidores'), (snap) => {
       setRacks(snap.docs.map(d => ({ id: d.id, ...d.data() })))
     })
     return unsub

@@ -23,7 +23,7 @@ export default function PublicRack() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    getDoc(doc(db, 'racks', rackId))
+    getDoc(doc(db, 'bastidores', rackId))
       .then(d => { d.exists() ? setRack({ id: d.id, ...d.data() }) : setNotFound(true) })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false))

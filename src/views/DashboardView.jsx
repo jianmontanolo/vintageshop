@@ -26,7 +26,7 @@ export default function DashboardView() {
   const [live, setLive] = useState(false)
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, 'racks'),
+    const unsub = onSnapshot(collection(db, 'bastidores'),
       (snap) => { setRacks(snap.docs.map(d => ({ id: d.id, ...d.data() }))); setLive(true) },
       () => setLive(false)
     )

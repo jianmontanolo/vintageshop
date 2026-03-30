@@ -35,7 +35,7 @@ export default function RacksView() {
   const [confirmDelete, setConfirmDelete] = useState(null)
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, 'racks'), (snap) => {
+    const unsub = onSnapshot(collection(db, 'bastidores'), (snap) => {
       setRacks(snap.docs.map(d => ({ id: d.id, ...d.data() })))
     })
     return unsub
@@ -58,7 +58,7 @@ export default function RacksView() {
     if (!nombre.trim()) return
     setSaving(true)
     try {
-      await addDoc(collection(db, 'racks'), {
+      await addDoc(collection(db, 'bastidores'), {
         nombre: nombre.trim(),
         descripcion: descripcion.trim(),
         creadoPor: user.uid,
@@ -75,7 +75,7 @@ export default function RacksView() {
 
   const handleDelete = async (rack) => {
     try {
-      await deleteDoc(doc(db, 'racks', rack.id))
+      await deleteDoc(doc(db, 'bastidores', rack.id))
       toast.success(`Rack "${rack.nombre}" eliminado`)
     } catch (err) {
       toast.error('Error: ' + err.message)
