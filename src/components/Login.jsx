@@ -33,18 +33,18 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      {/* Language toggle */}
-      <button
-        onClick={toggleLang}
-        className="fixed top-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-xs font-semibold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm animate-pop-in"
-      >
-        <span className="text-base leading-none">{flags[nextLang]}</span>
-        {labels[nextLang]}
-      </button>
-
       <div className="w-full max-w-sm animate-slide-up">
-        {/* Logo */}
+        {/* Logo + language toggle */}
         <div className="text-center mb-8 animate-fade-in">
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={toggleLang}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-xs font-semibold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm"
+            >
+              <span className="text-base leading-none">{flags[nextLang]}</span>
+              {labels[nextLang]}
+            </button>
+          </div>
           <div className="inline-flex items-center justify-center w-16 h-16 bg-brand rounded-2xl mb-4 shadow-lg">
             <svg className="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
