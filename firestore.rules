@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Racks: public read, authenticated create, owner-only delete
+    match /racks/{rackId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null
+        && request.auth.uid == resource.data.creadoPor;
+    }
+
+    // TOPs: public read, authenticated write
+    match /tops/{topId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasAll(['rackId', 'estilo', 'color'])
+        && request.resource.data.estilo is string
+        && request.resource.data.color is string;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+
+    // Historial: authenticated read/create only — append-only audit log
+    match /historial/{entryId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+  }
+}
